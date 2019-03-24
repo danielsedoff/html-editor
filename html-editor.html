@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+
+  <title>A simple HTML editor by Daniel Sedoff</title>
+  <style>
+   html, body 
+   {
+    margin:0;
+    padding:0;
+    height:100%;
+    border:none
+   }
+   
+   .writebutton {
+    padding: 5px; margin: 3px;
+    border-radius: 17px;
+    background-color:lightgrey;
+    display: inline-block;
+    border: 2px dotted cyan;
+    
+   }
+   body {
+    font-family: sans-serif;
+   }
+  </style>
+  <script>
+  
+   var intervalID = window.setInterval(renderCycleFunction, 1000);
+   function renderCycleFunction() {
+    renderCycleOn = document.getElementById("renderCycleOn").checked;
+    if(renderCycleOn) {
+     countdown = document.getElementById("countdown").value;
+     renderFrequency = document.getElementById("renderFrequency").value;
+     if(countdown == 0) {
+      renderHTML();
+      document.getElementById("countdown").value = renderFrequency;
+     } else {
+      document.getElementById("countdown").value = countdown - 1;
+     }
+    }
+   }
+   
+   function changeFrequency(){
+    frequencyValue = document.getElementById("renderFrequency").value;
+    howManySeconds = document.getElementById("howManySeconds");
+    howManySeconds.innerHTML = frequencyValue;
+   
+   }
+   function getLorem(){
+    return " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ut mi et orci auctor molestie. Cras id feugiat ipsum. Aenean quis dolor orci. Nam ut luctus felis. Aliquam ut pharetra mauris, vitae pretium arcu. Pellentesque in nisi mauris. Nullam eros odio, placerat in purus a, tempus varius purus. Vestibulum diam ante, sagittis eu libero eget, egestas congue odio. Suspendisse quis nisl sed nisi facilisis imperdiet. Duis placerat sem non velit gravida, a varius risus tincidunt. Pellentesque ut enim sit amet nibh sodales interdum. Nulla a velit dignissim, elementum sapien non, sagittis ante. Sed porta eu tellus sit amet fringilla. Nullam ipsum tortor, dapibus vitae ex sed, sollicitudin iaculis ligula. Cras eu felis quis est porta eleifend. ";
+   }
+  
+   function singleTag(name) {
+    return("\n  <" + name + ">\n");
+   }
+  
+   function doubleTag(name) {
+    return("\n  <" + name + ">  </" + name + ">" + "\n");
+   }
+  
+   function tagWithId(name) {
+    return ("  <" + name + " id=\"\" class=\"\" style=\"\">\n   \n  </" + name + ">\n");
+   }
+  
+   function tagList(what) {
+    tag_header = "<" + "!DOCTYPE HTML>\n<" + "html>\n" + 
+    " <" + "head>\n" +
+    "  <" + "meta charset=\"utf-8\">\n" +
+    "  <" + "title" + "></" + "title" + ">\n" +
+    " <" + "/head>\n" + 
+    " <" + "body>\n";
+    
+    tag_footer = " </" + "body>\n" +
+     "</" + "html>\n";
+    
+    tag_script = "  <" + "script type=\"text/javascript\">" + "\n   \n" + "  </" + "script" + ">\n";
+    tag_style =  "  <" + "style type=\"text/css\"" + ">\n   \n  </" + "style" + ">\n";
+    
+    tag_table = "  <table id=\"\" class=\"\" style=\"\">\n" +
+     doubleTag("thead") + doubleTag("tbody") +
+     doubleTag("tfoot") + "\n  </" + "table" + ">\n";
+    
+    tag_input = "  <input type=" + "\"\"" + " id=\"\" class=\"\" style=\"\">\n" +
+      "  </" + "input>\n";
+             
+    tag_form =  "  <form method=" + "\"\"" + " action=\"\" id=\"\" class=\"\" style=\"\">\n" +
+     "  </" + "form>\n";
+     
+    tag_comment = "<" + "!-- " + " --" + ">\n";
+    
+    tag_img  =  "  <i" + "mg src=\"\" id=\"\" class=\"\" style=\"\"/" + ">\n";
+    
+    tag_a_href = "\n  <a href=\"http://\" target=\"\">  </" + "a>\n";
+    tag_a_name = "\n  <a name=\"bookmark\"> " + " </a>\n";
+    
+    switch (what) {
+     case "Undo": undoStep(); return (renderHTML());
+     case "Render HTML": return (renderHTML());
+     
+     case "header": case "footer": case "script":
+     case "style":  case "table":  case "input": 
+     case "form":   case "img": case "comment":
+     case "a_href": case "a_name":
+      return (eval("tag_" + what));
+     
+     case "b": case "i": case "strong": 
+     case "u": case "sub": case "sup":
+     case "kbd": case "s": 
+      return(doubleTag(what));
+     
+     case "ul": case "tr": case "td": case "iframe":
+     case "p": case "div": case "ol": case "span":
+     case "li": case "textarea": case "h1": 
+     case "h2": case "h3": 
+      return (tagWithId(what));
+    
+     case "br": case "hr": case "meta":
+      return (singleTag(what));
+      
+     case "lorem":
+      return getLorem();
+
+    }
+   }
+
+   function getSeparator(){
+    return "$oMe rAnd4om t3xT thA!t $h0ulD n0t c0inc1DE w1th Th3 U$ER's dA7a";
+   }
+   
+   function saveHistory(){
+    sourceBox = document.getElementById("sourceHere");
+    historyBox = document.getElementById("history");
+    oldtext = sourceBox.value;
+    if (oldtext.indexOf(getSeparator()) != -1) {
+     alert("The code you input contains unsupported TRASH. TAKE OUT THE TRASH NOW.");
+     return;
+    }
+    historyBox.value = historyBox.value + getSeparator() + oldtext;
+   }
+   
+   function undoStep(){
+    sourceBox = document.getElementById("sourceHere");
+    historyBox = document.getElementById("history");
+    separator = getSeparator();
+    historyBoxValue = historyBox.value;
+    lastIndex1 = historyBoxValue.lastIndexOf(separator);
+    revisionContent = historyBoxValue.substring(lastIndex1 + separator.length);
+    sourceBox.value = revisionContent;
+    historyBox.value = "";
+    historyBox.value = historyBoxValue.substring(0, lastIndex1);
+   }
+   
+   function renderHTML () {
+    var theIframe = document.getElementById('renderTarget');
+    theIframe = theIframe.contentWindow || theIframe.contentDocument.document || theIframe.contentDocument;
+    theIframe.document.open();
+    theIframe.document.write(document.getElementById("sourceHere").value);
+    theIframe.document.close();
+    return "";
+   }
+   
+   function insertAtCursor(myValue) {
+    if(myValue == "") return;
+    saveHistory();
+    sourceBox = document.getElementById("sourceHere");
+    if (sourceBox.selectionStart || sourceBox.selectionStart == '0') {
+     
+     var startPos = sourceBox.selectionStart;
+     var endPos = sourceBox.selectionEnd;
+     sourceBox.value = sourceBox.value.substring(0, startPos)
+      + myValue
+      + sourceBox.value.substring(endPos, sourceBox.value.length);
+      sourceBox.selectionStart = sourceBox.selectionEnd = startPos + myValue.length; 
+    } else {
+     sourceBox.value += myValue;
+    }
+   }
+  
+ 
+   window.onload = function() {
+    var items = document.getElementsByTagName('div');
+    for(var i = 0; i < items.length; i++) {
+     var item = items[i];
+     if(item.className == "writebutton") {
+      item.onclick = function() {
+       insertAtCursor (tagList(this.innerHTML));
+      }
+     }
+    }
+   } 
+  </script>
+
+ </head>
+
+ <body>
+
+  <table style="width:100%; height:100%;">
+  
+  
+   <tr>
+
+    <td style="width:20%; height:100%; border: 1px solid; vertical-align: top; padding: 7px;">
+     <div class="writebutton">header</div>
+     <div class="writebutton">footer</div>
+     <div class="writebutton">div</div>
+     <div class="writebutton">span</div>
+     <div class="writebutton">table</div>
+     <div class="writebutton">tr</div>
+     <div class="writebutton">td</div>
+     <div class="writebutton">p</div>
+     <div class="writebutton">comment</div>
+     <div class="writebutton">iframe</div>
+     <div class="writebutton">script</div>
+     <div class="writebutton">style</div>
+     <div class="writebutton">ul</div>
+     <div class="writebutton">ol</div>
+     <div class="writebutton">li</div>
+     <div class="writebutton">h1</div>
+     <div class="writebutton">h2</div>
+     <div class="writebutton">h3</div>
+     <div class="writebutton">br</div>
+     <div class="writebutton">hr</div>
+     <div class="writebutton">textarea</div>
+     <div class="writebutton">kbd</div>
+     <div class="writebutton">meta</div>
+     <div class="writebutton">a_href</div>
+     <div class="writebutton">a_name</div>
+     
+     <div class="writebutton">b</div>
+     <div class="writebutton">i</div>
+     <div class="writebutton">u</div>
+     <div class="writebutton">s</div>
+     <div class="writebutton">strong</div>
+     <div class="writebutton">sub</div>
+     <div class="writebutton">sup</div>
+     <div class="writebutton">input</div>
+     <div class="writebutton">form</div>
+     <div class="writebutton">img</div>
+     <div class="writebutton">lorem</div>
+     
+     <hr>
+     <div class="writebutton" style="width:90%; text-align: center;">Render HTML</div>
+     <hr>
+     <div style="width:90%;">
+      <input type="checkbox" id="renderCycleOn" checked="true">every</input>  
+      <input type="range" min="1" max="10" value="5" id="renderFrequency" onchange="changeFrequency();"></input>
+      <span id="howManySeconds">5</span> sec.
+     </div>
+     <hr>
+     <div class="writebutton" style="width:90%; text-align: center;">Undo</div>
+     
+    </td>
+     
+    <td style="width:40%; height:100%; border: 1px solid; vertical-align: top; padding: 7px;">
+     <textarea style="width:100%; height: 100%;" id="sourceHere" onchange="saveHistory();" ></textarea>
+    </td>
+     
+    <td style="width:40%; height:100%; border: 1px solid; vertical-align: top; padding: 7px;">
+     <iframe style="width:100%; height: 100%;" id="renderTarget"></iframe>
+    </td>
+    
+   </tr>
+  </table>
+
+  <input type="hidden" id="history" value=""></input>
+  <input type="hidden" id="countdown" value="0"></input>
+
+
+ </body>
+</html>
