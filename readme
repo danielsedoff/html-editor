@@ -1,7 +1,6 @@
 html-editor
 
-This tool is a bery basic wysiwyg HTML editor. It allows you to write
-a vanilla HTML file. If you enable the 'every ... sec' option then the
-result window on the right will refresh every N seconds.
+This is a very basic WYSIWYG HTML editor. It allows you to write
+an HTML file from scratch. If you enable the 'every ... sec' option 
+then the result window on the right will refresh every N seconds.
 
-Written in html + javascript.
